@@ -102,3 +102,6 @@ dist
 
 # TernJS port file
 .tern-port
+
+ec2-us-east-2.pem
+package-lock.json
