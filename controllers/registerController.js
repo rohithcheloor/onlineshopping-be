@@ -1,5 +1,5 @@
 const registration = require("../models/registrationSchema");
-
+const errorGenerator = require('../utils/errorGenerator')
 //Create User
 const createUser = async (req, res) => {
   await registration.create(req.body, (err, user) => {
@@ -12,7 +12,7 @@ const createUser = async (req, res) => {
     else
       res.status(404).json({
         success: false,
-        message: "User account creation failed!",
+        message: errorGenerator(err.code, 'user'),
         error: err,
       });
   });

@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const registrationSchema = mongoose.Schema(
   {
     authInfo: {
-      username: { type: String, required: [true, "Username is required"] },
+      username: { type: String, unique: true, required: [true, "Username is required"] },
       password: { type: String, required: [true, "Password is required"] },
     },
     userInfo: {
@@ -52,12 +52,12 @@ const registrationSchema = mongoose.Schema(
           },
         },
       ],
-      email: { type: String, required: [true, "Email ID is required"] },
+      email: { type: String, unique: true, required: [true, "Email ID is required"] },
       emailVerified: { type: Boolean, required: true },
-      phone: { type: String, required: [true, "Phone number is required"] },
+      phone: { type: String, unique: true, required: [true, "Phone number is required"] },
       phoneVerified: { type: Boolean, required: true },
     },
   },
   { timestamps: true }
 );
-module.exports = mongoose.model("registration", registrationSchema);
+module.exports = mongoose.model("users", registrationSchema);

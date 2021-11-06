@@ -1,0 +1,34 @@
+{
+    "authInfo": {
+      "username": "rohith",
+      "password": "rohith"
+    },
+    "userInfo": {
+      "firstname": "Rohith Cheloor",
+      "middlename":"C",
+      "lastname": "M",
+      "image": [],
+      "billingAddress": [
+        {
+          "building":"Cheloor",
+          "street": "Kothanalloor",
+          "city": "Kottayam",
+          "country": "India",
+          "postalcode": "686632"
+        }
+      ],
+      "deliveryAddress": [
+        {
+          "building":"Cheloor",
+          "street": "Kothanalloor",
+          "city": "Kottayam",
+          "country": "India",
+          "postalcode": "686632"
+        }
+      ],
+      "email": "rohithcm101@gmail.com",
+      "emailVerified": true,
+      "phone": "+917012976194",
+      "phoneVerified": true
+    }
+  }
