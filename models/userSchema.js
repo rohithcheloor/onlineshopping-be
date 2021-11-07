@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
-const registrationSchema = mongoose.Schema(
+const userSchema = mongoose.Schema(
   {
     authInfo: {
       username: { type: String, unique: true, required: [true, "Username is required"] },
       password: { type: String, required: [true, "Password is required"] },
+      privilege: { type: String, required: [true, "User Privilege is required"] }
     },
     userInfo: {
       firstname: { type: String, required: [true, "Firstname is required"] },
@@ -60,4 +61,4 @@ const registrationSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
-module.exports = mongoose.model("users", registrationSchema);
+module.exports = mongoose.model("users", userSchema);

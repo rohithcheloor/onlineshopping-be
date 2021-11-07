@@ -1,7 +1,8 @@
 {
     "authInfo": {
       "username": "rohith",
-      "password": "rohith"
+      "password": "rohith",
+      "privilege":"user"
     },
     "userInfo": {
       "firstname": "Rohith Cheloor",

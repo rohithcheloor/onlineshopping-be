@@ -1,4 +1,4 @@
-const registration = require("../models/registrationSchema");
+const registration = require("../models/userSchema");
 
 //Create User
 const loginUser = (req, res) => {

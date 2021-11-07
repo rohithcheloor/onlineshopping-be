@@ -9,7 +9,7 @@ const app = express();
 const port = process.env.PORT || 2000;
 
 const authRouter = require("./routes/auth");
-const registerRouter = require("./routes/register");
+const userRouter = require("./routes/user");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
@@ -20,6 +20,6 @@ db.on("error", console.error.bind(console, "MongoDB connection error:"));
 app.use("/", express.static(path.join(__dirname, "static")));
 
 app.use("/api", authRouter);
-app.use("/api", registerRouter);
+app.use("/api", userRouter);
 
 app.listen(port, () => console.log(`Server running on port :${port}`));
