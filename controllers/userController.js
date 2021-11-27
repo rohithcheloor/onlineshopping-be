@@ -1,7 +1,8 @@
 const user = require("../models/userSchema");
 const errorGenerator = require("../utils/errorGenerator");
 const encryption = require("../utils/encryption");
-
+const moment = require("moment");
+const jwt = require("jsonwebtoken");
 const checkAccess = (req, callback) => {
   console.log(req.headers.currentUserId);
   if (req.body && req.body._id === req.body.currentUserId) {
@@ -31,6 +32,55 @@ const validateUser = async (userData, callback) => {
         return callback(err, requestBody);
       }
     );
+  }
+};
+const generateToken = (id, username) => {
+  const token = jwt.sign({ id, username }, process.env.TOKEN_KEY, {
+    expiresIn: "2h",
+  });
+  const expiryTime = moment().add(2, "hours").format();
+  console.log({ id, username });
+  user.updateOne({ _id: id }, { token: token, token_expiry: expiryTime });
+  return { token, expiryTime };
+};
+
+const loginUser = async (req, res) => {
+  const { username, password } = req.body;
+  if (!(username && password)) {
+    res.status(400).json({
+      success: false,
+      message: "Missing Credentials.",
+    });
+  } else {
+    const userData = await user.findOne({ "authInfo.username": username });
+    if (userData) {
+      encryption.comparePassword(
+        password,
+        userData.authInfo.password,
+        (notValidated, validated) => {
+          if (validated) {
+            const tokenData = generateToken(userData._id, username);
+            tokenData &&
+              res.status(200).json({
+                success: true,
+                token: tokenData.token,
+                token_expiry: tokenData.expiryTime,
+                message: "Token generated.",
+              });
+          } else {
+            res.status(400).json({
+              success: false,
+              message: "Invalid Credentials.",
+            });
+          }
+        }
+      );
+    } else {
+      res.status(400).json({
+        success: false,
+        message: "Invalid Credentials.",
+      });
+    }
   }
 };
 //Create User
@@ -124,4 +174,5 @@ module.exports = {
   updateUser,
   deleteUser,
   getAllUsers,
+  loginUser,
 };
