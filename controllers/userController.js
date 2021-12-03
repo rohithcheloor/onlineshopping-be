@@ -3,12 +3,28 @@ const errorGenerator = require("../utils/errorGenerator");
 const encryption = require("../utils/encryption");
 const moment = require("moment");
 const jwt = require("jsonwebtoken");
-const checkAccess = (req, callback) => {
-  console.log(req.headers.currentUserId);
+const checkAccess = async (req, callback) => {
   if (req.body && req.body._id === req.body.currentUserId) {
     return callback(null, true);
   } else if (req.body) {
     //Check for admin access for current user
+    const currentUserData = await user.findOne({ _id: req.body.currentUserId });
+    if (
+      currentUserData.authInfo &&
+      currentUserData.authInfo.privilege &&
+      currentUserData.authInfo.privilege === "admin"
+    ) {
+      return callback(null, true);
+    } else {
+      return callback(
+        {
+          success: false,
+          _id: req.headers.currentUserId,
+          message: "Access denied!",
+        },
+        null
+      );
+    }
   } else {
     return callback(
       {
@@ -120,10 +136,19 @@ const updateUser = async (req, res) => {
         encypted_request,
         null,
         (err, patchRes) => {
-          if (patchRes) {
-            res.status(200).json(patchRes);
+          if (patchRes && patchRes.nModified > 0) {
+            res.status(200).json({
+              success: true,
+              _id: user._id,
+              message: "Updated User!",
+              ...patchRes,
+            });
           } else {
-            res.status(404).json(err);
+            res.status(404).json({
+              success: false,
+              message: "User account does not exist!",
+              err: err,
+            });
           }
         }
       );
@@ -139,20 +164,24 @@ const updateUser = async (req, res) => {
 
 //Delete User
 const deleteUser = async (req, res) => {
-  checkAccess(req);
-  await user.deleteOne({ _id: req.body._id }, (err, deleteRes) => {
-    if (deleteRes) {
-      res.status(200).json({
-        success: true,
-        _id: user._id,
-        message: "User account deleted Successfully!",
+  await checkAccess(req, async (err, checkRes) => {
+    if (checkRes) {
+      await user.deleteOne({ _id: req.body._id }, (deleteErr, deleteRes) => {
+        if (deleteRes && deleteRes.deletedCount > 0) {
+          res.status(200).json({
+            success: true,
+            _id: user._id,
+            message: "User account deleted Successfully!",
+          });
+        } else {
+          res.status(404).json({
+            success: false,
+            message: "User account does not exist!",
+          });
+        }
       });
     } else {
-      res.status(404).json({
-        success: true,
-        _id: user._id,
-        message: err,
-      });
+      return res.status(403).json(err);
     }
   });
 };

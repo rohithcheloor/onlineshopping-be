@@ -12,6 +12,7 @@ const userSchema = mongoose.Schema(
         type: String,
         required: [true, "User Privilege is required"],
       },
+      tokens: { type: Array },
     },
     userInfo: {
       firstname: { type: String, required: [true, "Firstname is required"] },
