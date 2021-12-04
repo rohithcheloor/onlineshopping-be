@@ -1,8 +1,8 @@
 const user = require("../models/userSchema");
-const errorGenerator = require("../utils/errorGenerator");
 const encryption = require("../utils/encryption");
 const moment = require("moment");
 const jwt = require("jsonwebtoken");
+const flattenObject = require("../utils/flatten");
 
 const generateToken = (id, username) => {
   const token = jwt.sign({ id, username }, process.env.TOKEN_KEY, {
@@ -89,7 +89,49 @@ const loginUser = async (req, res) => {
 
 const logoutUser = async (req, res) => {
   const { authorization } = req.headers;
-  return res.json(req.headers);
+  authToken = authorization.replace("Bearer ", "");
+  const userData = await user.findOne({
+    "authInfo.tokens": { $elemMatch: { token: authToken } },
+  });
+  if (userData) {
+    const refreshedTokens = [];
+    userData.authInfo.tokens.forEach((token, index) => {
+      //Removing expired tokens & previous token for same IP
+      if (
+        !token.expiry < moment().format() ||
+        !token.expiry === null ||
+        !token.token == authToken
+      ) {
+        refreshedTokens.push(token);
+      }
+    });
+    await user.updateOne(
+      {
+        _id: userData._id,
+      },
+      {
+        "authInfo.tokens": refreshedTokens,
+      },
+      null,
+      (err, updateRes) => {
+        if (updateRes)
+          return res.status(200).json({
+            success: true,
+            message: "Token Discarded.",
+          });
+        else
+          return res.status(500).json({
+            success: false,
+            message: "Token discarding failed. Please try again later.",
+          });
+      }
+    );
+  } else {
+    return res.status(500).json({
+      success: false,
+      message: "Logout failed. Please try again later.",
+    });
+  }
 };
 
 module.exports = {
