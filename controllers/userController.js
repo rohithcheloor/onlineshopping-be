@@ -1,8 +1,7 @@
 const user = require("../models/userSchema");
 const errorGenerator = require("../utils/errorGenerator");
 const encryption = require("../utils/encryption");
-const moment = require("moment");
-const jwt = require("jsonwebtoken");
+
 const checkAccess = async (req, callback) => {
   if (req.body && req.body._id === req.body.currentUserId) {
     return callback(null, true);
@@ -39,6 +38,8 @@ const checkAccess = async (req, callback) => {
 const validateUser = async (userData, callback) => {
   const requestBody = userData.body;
   if (requestBody && requestBody.authInfo && requestBody.authInfo.password) {
+    const userData = await user.findOne({ _id: requestBody._id });
+    requestBody.authInfo.tokens = userData.authInfo.tokens;
     await encryption.encryptPassword(
       requestBody.authInfo.password,
       (err, hash) => {
@@ -50,55 +51,7 @@ const validateUser = async (userData, callback) => {
     );
   }
 };
-const generateToken = (id, username) => {
-  const token = jwt.sign({ id, username }, process.env.TOKEN_KEY, {
-    expiresIn: "2h",
-  });
-  const expiryTime = moment().add(2, "hours").format();
-  console.log({ id, username });
-  user.updateOne({ _id: id }, { token: token, token_expiry: expiryTime });
-  return { token, expiryTime };
-};
 
-const loginUser = async (req, res) => {
-  const { username, password } = req.body;
-  if (!(username && password)) {
-    res.status(400).json({
-      success: false,
-      message: "Missing Credentials.",
-    });
-  } else {
-    const userData = await user.findOne({ "authInfo.username": username });
-    if (userData) {
-      encryption.comparePassword(
-        password,
-        userData.authInfo.password,
-        (notValidated, validated) => {
-          if (validated) {
-            const tokenData = generateToken(userData._id, username);
-            tokenData &&
-              res.status(200).json({
-                success: true,
-                token: tokenData.token,
-                token_expiry: tokenData.expiryTime,
-                message: "Token generated.",
-              });
-          } else {
-            res.status(400).json({
-              success: false,
-              message: "Invalid Credentials.",
-            });
-          }
-        }
-      );
-    } else {
-      res.status(400).json({
-        success: false,
-        message: "Invalid Credentials.",
-      });
-    }
-  }
-};
 //Create User
 const createUser = async (req, res) => {
   await validateUser(req, async (err, encypted_request) => {
@@ -203,5 +156,4 @@ module.exports = {
   updateUser,
   deleteUser,
   getAllUsers,
-  loginUser,
 };
