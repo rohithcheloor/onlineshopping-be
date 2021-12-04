@@ -1,7 +1,7 @@
 const user = require("../models/userSchema");
 const errorGenerator = require("../utils/errorGenerator");
 const encryption = require("../utils/encryption");
-
+const flattenObject = require("../utils/flatten");
 const checkAccess = async (req, callback) => {
   if (req.body && req.body._id === req.body.currentUserId) {
     return callback(null, true);
@@ -86,7 +86,7 @@ const updateUser = async (req, res) => {
     if (encypted_request) {
       await user.updateOne(
         { _id: req.body._id },
-        encypted_request,
+        flattenObject(encypted_request),
         null,
         (err, patchRes) => {
           if (patchRes && patchRes.nModified > 0) {
