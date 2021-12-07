@@ -16,9 +16,4 @@ mongoose
   });
 
 const db = mongoose.connection;
-// db.createUser({
-//   user:'admin',
-//   pwd:'rohithcmrdz2',
-//   roles:[{role: "userAdminAnyDatabase",db: "admin"},{role: "readWriteAnyDatabase",db: "admin"},{role: "dbAdminAnyDatabase",db: "admin"}]
-// })
 module.exports = db;
