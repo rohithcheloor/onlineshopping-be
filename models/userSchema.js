@@ -2,9 +2,17 @@ const mongoose = require("mongoose");
 const userSchema = mongoose.Schema(
   {
     authInfo: {
-      username: { type: String, unique: true, required: [true, "Username is required"] },
+      username: {
+        type: String,
+        unique: true,
+        required: [true, "Username is required"],
+      },
       password: { type: String, required: [true, "Password is required"] },
-      privilege: { type: String, required: [true, "User Privilege is required"] }
+      privilege: {
+        type: String,
+        required: [true, "User Privilege is required"],
+      },
+      tokens: { type: Array },
     },
     userInfo: {
       firstname: { type: String, required: [true, "Firstname is required"] },
@@ -53,11 +61,21 @@ const userSchema = mongoose.Schema(
           },
         },
       ],
-      email: { type: String, unique: true, required: [true, "Email ID is required"] },
+      email: {
+        type: String,
+        unique: true,
+        required: [true, "Email ID is required"],
+      },
       emailVerified: { type: Boolean, required: true },
-      phone: { type: String, unique: true, required: [true, "Phone number is required"] },
+      phone: {
+        type: String,
+        unique: true,
+        required: [true, "Phone number is required"],
+      },
       phoneVerified: { type: Boolean, required: true },
     },
+    token: { type: String, required: false },
+    token_expiry: { type: Date, required: false },
   },
   { timestamps: true }
 );

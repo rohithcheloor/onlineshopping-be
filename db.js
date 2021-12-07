@@ -3,9 +3,11 @@ const dbUrl = process.env.DB_ROOT_URL_PRODUCTION;
 const username = process.env.DB_CRED_USR;
 const password = process.env.DB_CRED_PWD;
 
+// .connect(`mongodb://${dbUrl}/onlineshopping`, {
+const connectionString = `mongodb://${username}:${password}@${dbUrl}/onlineshopping`;
+console.log("connectionString :", connectionString);
 mongoose
-// .connect(`mongodb://${username}:${password}@${dbUrl}/onlineshopping`, {
-  .connect(`mongodb://${dbUrl}/onlineshopping`, {
+  .connect(connectionString, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
