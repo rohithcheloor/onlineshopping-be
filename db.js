@@ -4,12 +4,18 @@ const username = process.env.DB_CRED_USR;
 const password = process.env.DB_CRED_PWD;
 
 // .connect(`mongodb://${dbUrl}/onlineshopping`, {
-const connectionString = `mongodb://${username}:${password}@${dbUrl}/onlineshopping`;
-console.log("connectionString :", connectionString);
+  let connectionString = ``;
+  if(username && password){
+    connectionString = `mongodb://${username}:${password}@${dbUrl}/onlineshopping`
+  }else{
+    connectionString=`mongodb://${dbUrl}/onlineshopping`
+  }
 mongoose
   .connect(connectionString, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+  }).then(()=>{
+    console.log("Connected to DB")
   })
   .catch((e) => {
     console.error("Connection error", e.message);

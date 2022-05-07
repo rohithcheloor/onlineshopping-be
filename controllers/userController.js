@@ -7,7 +7,9 @@ const checkAccess = async (req, callback) => {
     return callback(null, true);
   } else if (req.body) {
     //Check for admin access for current user
-    const currentUserData = await user.findOne({ _id: req.body.currentUserId });
+    const currentUserData = await user.findOne({
+      "authInfo.username": req.body.authInfo.username,
+    });
     if (
       currentUserData.authInfo &&
       currentUserData.authInfo.privilege &&
@@ -35,11 +37,15 @@ const checkAccess = async (req, callback) => {
     );
   }
 };
-const validateUser = async (userData, callback) => {
+const encryptUserData = async (userData, callback) => {
   const requestBody = userData.body;
   if (requestBody && requestBody.authInfo && requestBody.authInfo.password) {
-    const userData = await user.findOne({ _id: requestBody._id });
-    requestBody.authInfo.tokens = userData.authInfo.tokens;
+    const userData = await user.findOne({
+      "authInfo.username": requestBody.authInfo.username,
+    });
+    if (userData) {
+      requestBody.authInfo.tokens = userData.authInfo.tokens;
+    }
     await encryption.encryptPassword(
       requestBody.authInfo.password,
       (err, hash) => {
@@ -54,7 +60,7 @@ const validateUser = async (userData, callback) => {
 
 //Create User
 const createUser = async (req, res) => {
-  await validateUser(req, async (err, encypted_request) => {
+  await encryptUserData(req, async (err, encypted_request) => {
     if (encypted_request) {
       await user.create(encypted_request, (err, user) => {
         if (user)
@@ -81,38 +87,81 @@ const createUser = async (req, res) => {
 };
 
 //Update User
-const updateUser = async (req, res) => {
-  await validateUser(req, async (err, encypted_request) => {
-    if (encypted_request) {
-      await user.updateOne(
-        { _id: req.body._id },
-        flattenObject(encypted_request),
-        null,
-        (err, patchRes) => {
-          if (patchRes && patchRes.nModified > 0) {
-            res.status(200).json({
-              success: true,
-              _id: user._id,
-              message: "Updated User!",
-              ...patchRes,
-            });
-          } else {
-            res.status(404).json({
-              success: false,
-              message: "User account does not exist!",
-              err: err,
-            });
-          }
+const updateUserDetails = async (req, res) => {
+  const userDetails = await user.findById(req.body._id);
+  if (userDetails) {
+    encryption.comparePassword(
+      req.body.authInfo.password,
+      userDetails.authInfo.password,
+      async (invalid, valid) => {
+        if (valid) {
+          const authInfo = userDetails.authInfo;
+          req.body.authInfo = authInfo;
+          user.updateOne(
+            { _id: req.body._id },
+            req.body,
+            null,
+            (err, patchRes) => {
+              if (patchRes && patchRes.modifiedCount > 0) {
+                res.status(200).json({
+                  success: true,
+                  _id: user._id,
+                  message: "Updated User!",
+                  ...patchRes,
+                });
+              } else {
+                res.status(404).json({
+                  success: false,
+                  message: "User account does not exist!",
+                  err: err,
+                });
+              }
+            }
+          );
+        } else {
+          res.status(404).json({
+            success: false,
+            message: errorGenerator(104, "user"),
+          });
         }
-      );
-    } else {
-      res.status(404).json({
-        success: false,
-        message: errorGenerator(101, "user"),
-        error: err,
-      });
-    }
-  });
+      }
+    );
+  } else {
+    res.status(404).json({
+      success: false,
+      message: errorGenerator(102, "user"),
+    });
+  }
+};
+
+//Update Credentials
+const updateUserCredentials = async (req, res) => {
+  const userDetails = await user.findById(req.body._id);
+  if (userDetails) {
+    const authInfo = userDetails.authInfo;
+    req.body.authInfo = authInfo;
+    user.updateOne({ _id: req.body._id }, req.body, null, (err, patchRes) => {
+      if (patchRes && patchRes.modifiedCount > 0) {
+        res.status(200).json({
+          success: true,
+          _id: user._id,
+          message: "Updated User!",
+          ...patchRes,
+        });
+      } else {
+        res.status(404).json({
+          success: false,
+          message: "User account does not exist!",
+          err: err,
+        });
+      }
+    });
+  } else {
+    res.status(404).json({
+      success: false,
+      message: errorGenerator(102, "user"),
+    });
+  }
 };
 
 //Delete User
@@ -141,19 +190,18 @@ const deleteUser = async (req, res) => {
 
 //Get All User
 const getAllUsers = async (req, res) => {
-  await user.find({}, (err, users) => {
-    if (users) return res.status(200).json({ success: true, data: users });
-    else if (!users || !users.length) {
-      return res.status(404).json({ success: false, error: `No users found` });
-    } else {
-      return res.status(400).json({ success: false, error: err });
-    }
-  });
+  const users = await user.find({});
+  if (users) res.status(200).json({ success: true, data: users });
+  else if (!users || !users.length) {
+    res.status(404).json({ success: false, error: `No users found` });
+  } else {
+    res.status(400).json({ success: false, error: err });
+  }
 };
 
 module.exports = {
   createUser,
-  updateUser,
+  updateUserDetails,
   deleteUser,
   getAllUsers,
 };

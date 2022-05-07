@@ -15,6 +15,21 @@ const errorMessages = [
     code: 101,
     message: "Invalid Password",
   },
+  {
+    collection: "user",
+    code: 102,
+    message: "User not found",
+  },
+  {
+    collection: "user",
+    code: 103,
+    message: "User account updation failed",
+  },
+  {
+    collection: "user",
+    code: 104,
+    message: "Invalid Credentials",
+  },
 ];
 const errorGenerator = (errorCode, collection) => {
   const returnMessage = errorMessages.find(
@@ -23,7 +38,7 @@ const errorGenerator = (errorCode, collection) => {
   if (returnMessage) {
     return returnMessage;
   } else {
-    return "User account creation failed!";
+    return "An error occured!";
   }
 };
 

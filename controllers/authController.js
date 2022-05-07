@@ -4,8 +4,8 @@ const moment = require("moment");
 const jwt = require("jsonwebtoken");
 const flattenObject = require("../utils/flatten");
 
-const generateToken = (id, username) => {
-  const token = jwt.sign({ id, username }, process.env.TOKEN_KEY, {
+const generateToken = (id, username, password) => {
+  const token = jwt.sign({ id, username }, password, {
     expiresIn: "2h",
   });
   const expiryTime = moment().add(2, "hours").format();
@@ -28,7 +28,7 @@ const loginUser = async (req, res) => {
         userData.authInfo.password,
         async (notValidated, validated) => {
           if (validated) {
-            const tokenData = generateToken(userData._id, username); //Generating JWT Token
+            const tokenData = generateToken(userData._id, username, password); //Generating JWT Token
             if (tokenData && userData.authInfo.tokens) {
               const refreshedTokens = [];
               userData.authInfo.tokens.forEach((token, index) => {
@@ -46,32 +46,30 @@ const loginUser = async (req, res) => {
                 expiry: tokenData.expiryTime,
                 ip: req.socket.remoteAddress,
               });
-              await user.updateOne(
-                {
-                  _id: userData._id,
-                },
-                {
-                  "authInfo.tokens": refreshedTokens,
-                },
-                null,
-                (err, updateRes) => {
-                  if (updateRes)
-                    return res.status(200).json({
-                      success: true,
-                      token: tokenData.token,
-                      token_expiry: tokenData.expiryTime,
-                      message: "Token generated.",
-                    });
-                  else
-                    return res.status(500).json({
-                      success: false,
-                      message: "Token updation failed. Please try again later.",
-                    });
-                }
-              );
+              userData.authInfo.tokens = refreshedTokens;
+              await userData.save().then((updateRes, err) => {
+                if (updateRes)
+                  res.status(200).json({
+                    success: true,
+                    token: tokenData.token,
+                    token_expiry: tokenData.expiryTime,
+                    message: "Token generated.",
+                  });
+                else
+                  res.status(500).json({
+                    success: false,
+                    message: "Token updation failed. Please try again later.",
+                    err: err,
+                  });
+              });
+            } else {
+              res.status(400).json({
+                success: false,
+                message: "Invalid Credentials.",
+              });
             }
           } else {
-            return res.status(400).json({
+            res.status(400).json({
               success: false,
               message: "Invalid Credentials.",
             });
@@ -105,27 +103,19 @@ const logoutUser = async (req, res) => {
         refreshedTokens.push(token);
       }
     });
-    await user.updateOne(
-      {
-        _id: userData._id,
-      },
-      {
-        "authInfo.tokens": refreshedTokens,
-      },
-      null,
-      (err, updateRes) => {
-        if (updateRes)
-          return res.status(200).json({
-            success: true,
-            message: "Token Discarded.",
-          });
-        else
-          return res.status(500).json({
-            success: false,
-            message: "Token discarding failed. Please try again later.",
-          });
-      }
-    );
+    userData.authInfo.tokens = refreshedTokens;
+    await userData.save().then((updateRes, err) => {
+      if (updateRes)
+        return res.status(200).json({
+          success: true,
+          message: "Logged out successfully",
+        });
+      else
+        return res.status(500).json({
+          success: false,
+          message: "Token discarding failed. Please try again later.",
+        });
+    });
   } else {
     return res.status(500).json({
       success: false,
