@@ -2,6 +2,7 @@ const user = require("../models/userSchema");
 const errorGenerator = require("../utils/errorGenerator");
 const encryption = require("../utils/encryption");
 const flattenObject = require("../utils/flatten");
+
 const checkAccess = async (req, callback) => {
   if (req.body && req.body._id === req.body.currentUserId) {
     return callback(null, true);
@@ -37,6 +38,7 @@ const checkAccess = async (req, callback) => {
     );
   }
 };
+// To Encrypt password
 const encryptUserData = async (userData, callback) => {
   const requestBody = userData.body;
   if (requestBody && requestBody.authInfo && requestBody.authInfo.password) {
@@ -157,6 +159,7 @@ const updateUserCredentials = async (req, res) => {
           if (success) {
             updateData.authInfo.tokens = userData.authInfo.tokens;
             if (updateData.authInfo.password === userData.authInfo.password) {
+              // If password in body is encrypted
               const checkUsernameAvailability = await user.find({
                 "authInfo.username": updateData.authInfo.username,
                 _id: { $ne: userData._id },
@@ -185,6 +188,7 @@ const updateUserCredentials = async (req, res) => {
                 );
               }
             } else {
+              // If password in body is plain text
               encryptUserData(req, async (encErr, encypted_request) => {
                 if (encypted_request) {
                   const checkUsernameAvailability = await user.find({
@@ -278,7 +282,7 @@ const deleteUser = async (req, res) => {
   });
 };
 
-//Get All User
+//Get All Users
 const getAllUsers = async (req, res) => {
   const users = await user.find({});
   if (users) return res.status(200).json({ success: true, data: users });
