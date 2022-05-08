@@ -7,6 +7,16 @@ const errorMessages = [
   },
   {
     collection: "user",
+    code: 11001,
+    message: "Username is already in use. Please try another name",
+  },
+  {
+    collection: "user",
+    code: 11002,
+    message: "Email / Phone number is already in use. Please try another one",
+  },
+  {
+    collection: "user",
     code: 100,
     message: "Password not provided",
   },
@@ -29,6 +39,11 @@ const errorMessages = [
     collection: "user",
     code: 104,
     message: "Invalid Credentials",
+  },
+  {
+    collection: "user",
+    code: 401,
+    message: "Unauthorized Request",
   },
 ];
 const errorGenerator = (errorCode, collection) => {
