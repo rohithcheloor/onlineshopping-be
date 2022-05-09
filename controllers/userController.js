@@ -38,6 +38,7 @@ const checkAccess = async (req, callback) => {
     );
   }
 };
+
 // To Encrypt password
 const encryptUserData = async (userData, callback) => {
   const requestBody = userData.body;
@@ -138,6 +139,7 @@ const verifyEmail = async (req, res) => {
       });
     });
 };
+
 const verifyPhone = async (req, res) => {
   const token = req.params && req.params.token;
   await user
