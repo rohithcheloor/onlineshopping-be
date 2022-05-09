@@ -19,7 +19,10 @@ const productVariantSchema = mongoose.Schema({
     ogImage: { type: String },
   },
   productVariantDetails: {
-    productId: { type: String, required: [true, "Product Id is required"] },
+    productId: {
+      type: mongoose.SchemaTypes.ObjectId,
+      required: [true, "Product Id is required"],
+    },
     variantName: {
       type: String,
       required: [true, "Variant Name is required"],

@@ -10,6 +10,7 @@ const port = process.env.PORT || 2000;
 
 const authRouter = require("./routes/auth");
 const userRouter = require("./routes/user");
+const productRouter = require("./routes/product");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
@@ -21,5 +22,6 @@ app.use("/", express.static(path.join(__dirname, "static")));
 
 app.use("/api", authRouter);
 app.use("/api", userRouter);
+app.use("/api", productRouter);
 
 app.listen(port, () => console.log(`Server running on port :${port}`));

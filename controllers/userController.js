@@ -107,7 +107,7 @@ const verifyEmail = async (req, res) => {
   await user
     .findOneAndUpdate(
       { "userInfo.emailVerificationToken": token },
-      { "userInfo.emailVerified": true }
+      { "userInfo.emailVerificationToken": "", "userInfo.emailVerified": true }
     )
     .then(
       (successRes) => {
@@ -145,7 +145,7 @@ const verifyPhone = async (req, res) => {
   await user
     .findOneAndUpdate(
       { "userInfo.phoneVerificationToken": token },
-      { "userInfo.phoneVerified": true }
+      { "userInfo.phoneVerificationToken": "", "userInfo.phoneVerified": true }
     )
     .then(
       (successRes) => {
