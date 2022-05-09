@@ -1,7 +1,7 @@
 const user = require("../models/userSchema");
 const errorGenerator = require("../utils/errorGenerator");
 const encryption = require("../utils/encryption");
-const flattenObject = require("../utils/flatten");
+const generateToken = require("../utils/tokenGenerator");
 
 const checkAccess = async (req, callback) => {
   if (req.body && req.body._id === req.body.currentUserId) {
@@ -64,6 +64,19 @@ const encryptUserData = async (userData, callback) => {
 const createUser = async (req, res) => {
   await encryptUserData(req, async (err, encypted_request) => {
     if (encypted_request) {
+      encypted_request.userInfo.emailVerified = false;
+      encypted_request.userInfo.phoneVerified = false;
+      if (encypted_request.userInfo.email) {
+        encypted_request.userInfo.emailVerificationToken =
+          Math.random().toString(36).substring(2) +
+          "_" +
+          btoa(encypted_request.userInfo.email) +
+          "_" +
+          Math.random().toString(36).substring(2);
+      }
+      if (encypted_request.userInfo.phone) {
+        encypted_request.userInfo.phoneVerificationToken = generateToken(8);
+      }
       await user.create(encypted_request, (err, user) => {
         if (user)
           return res.status(200).json({
@@ -86,6 +99,81 @@ const createUser = async (req, res) => {
       });
     }
   });
+};
+
+const verifyEmail = async (req, res) => {
+  const token = req.params && req.params.token;
+  await user
+    .findOneAndUpdate(
+      { "userInfo.emailVerificationToken": token },
+      { "userInfo.emailVerified": true }
+    )
+    .then(
+      (successRes) => {
+        if (successRes) {
+          return res.status(200).json({
+            success: true,
+            message: "Email verified ",
+          });
+        } else {
+          return res.status(404).json({
+            success: false,
+            message: "Invalid Token",
+          });
+        }
+      },
+      (err) => {
+        return res.status(404).json({
+          success: false,
+          message: "Invalid Token",
+          err: err,
+        });
+      }
+    )
+    .catch((err) => {
+      return res.status(404).json({
+        success: false,
+        message: "Invalid Token",
+        err: err,
+      });
+    });
+};
+const verifyPhone = async (req, res) => {
+  const token = req.params && req.params.token;
+  await user
+    .findOneAndUpdate(
+      { "userInfo.phoneVerificationToken": token },
+      { "userInfo.phoneVerified": true }
+    )
+    .then(
+      (successRes) => {
+        if (successRes) {
+          return res.status(200).json({
+            success: true,
+            message: "Phone number verified ",
+          });
+        } else {
+          return res.status(404).json({
+            success: false,
+            message: "Invalid Token",
+          });
+        }
+      },
+      (err) => {
+        return res.status(404).json({
+          success: false,
+          message: "Invalid Token",
+          err: err,
+        });
+      }
+    )
+    .catch((err) => {
+      return res.status(404).json({
+        success: false,
+        message: "Invalid Token",
+        err: err,
+      });
+    });
 };
 
 //Update User
@@ -299,4 +387,6 @@ module.exports = {
   updateUserDetails,
   deleteUser,
   getAllUsers,
+  verifyEmail,
+  verifyPhone,
 };
