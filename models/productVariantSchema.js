@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-productSchema = mongoose.Schema({
+const productVariantSchema = mongoose.Schema({
   seoParams: {
     name: {
       type: String,
@@ -20,15 +20,20 @@ productSchema = mongoose.Schema({
   },
   productVariantDetails: {
     productId: { type: String, required: [true, "Product Id is required"] },
-    name: {
+    variantName: {
       type: String,
       required: [true, "Variant Name is required"],
     },
-    orice: {
+    variantCategory: {
+      type: String,
+      required: [true, "Variant Category is required"],
+    },
+    price: {
       type: Number,
       required: [true, "Variant Price is required"],
     },
-    offerPercentage: Number,
+    defaultOfferPercentage: Number,
+    offers: Array,
     images: Array,
     description: {
       type: String,
@@ -36,3 +41,4 @@ productSchema = mongoose.Schema({
     specifications: Array,
   },
 });
+module.exports = mongoose.model("productVariant", productVariantSchema);
