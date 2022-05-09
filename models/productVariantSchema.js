@@ -28,6 +28,7 @@ const productVariantSchema = mongoose.Schema({
       type: String,
       required: [true, "Variant Category is required"],
     },
+    variantSpecification: Object,
     price: {
       type: Number,
       required: [true, "Variant Price is required"],
