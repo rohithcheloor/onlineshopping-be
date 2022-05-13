@@ -46,6 +46,11 @@ const errorMessages = [
     message: "Invalid Credentials",
   },
   {
+    collection: "product",
+    code: 105,
+    message: "Product updation failed",
+  },
+  {
     collection: "user",
     code: 401,
     message: "Unauthorized Request",

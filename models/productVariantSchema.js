@@ -38,7 +38,7 @@ const productVariantSchema = mongoose.Schema({
     description: {
       type: String,
     },
-    specifications: Array,
+    availability: Boolean,
   },
 });
 module.exports = mongoose.model("productVariant", productVariantSchema);
