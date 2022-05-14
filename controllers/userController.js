@@ -2,7 +2,9 @@ const user = require("../models/userSchema");
 const errorGenerator = require("../utils/errorGenerator");
 const encryption = require("../utils/encryption");
 const generateToken = require("../utils/tokenGenerator");
-
+const moment = require("moment");
+const sendMail = require("../utils/mailer");
+const constants = require("../utils/constants");
 const checkAccess = async (req, callback) => {
   if (req.body && req.body._id === req.body.currentUserId) {
     return callback(null, true);
@@ -13,8 +15,8 @@ const checkAccess = async (req, callback) => {
     });
     if (
       currentUserData.authInfo &&
-      currentUserData.authInfo.privilege &&
-      currentUserData.authInfo.privilege === "admin"
+      currentUserData.authInfo.role &&
+      currentUserData.authInfo.role === "admin"
     ) {
       return callback(null, true);
     } else {
@@ -383,6 +385,82 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+/*
+{
+  username:"test",
+  email:"test",
+  phone:"test"
+}
+*/
+
+const generatePasswordResetToken = async (req, res) => {
+  const reqBody = req.body;
+  if (reqBody.username || reqBody.email || reqBody.phone) {
+    let userData;
+    if (reqBody.username) {
+      userData = await user.findOne({
+        "authInfo.username": reqBody.username,
+      });
+    } else if (reqBody.email) {
+      userData = await user.findOne({
+        "userInfo.email": reqBody.email,
+      });
+    } else {
+      userData = await user.findOne({
+        "userInfo.phone": reqBody.phone,
+      });
+    }
+    if (userData) {
+      userData.authInfo.passwordReset.token = btoa(generateToken(16));
+      userData.authInfo.passwordReset.expiry = moment()
+        .add(30, "minutes")
+        .toISOString();
+      userData
+        .save()
+        .then(
+          () => {
+            sendMail(
+              {
+                mailto: userData.userInfo.email,
+                subject: "Reset your Password...",
+                content: constants.passwordResetContent(
+                  userData.authInfo.passwordReset.token
+                ),
+                successMessage:
+                  "Password reset token has been successfully sent to your e-mail. Please check your inbox for the reset link.",
+              },
+              res
+            );
+          },
+          (saveError) => {
+            return res.status(500).json({
+              success: true,
+              message: "Request Failed",
+              err: saveError,
+            });
+          }
+        )
+        .catch(() => {
+          return res.status(500).json({
+            success: true,
+            message: "Request Failed",
+            err: saveError,
+          });
+        });
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: errorGenerator(404, "user"),
+      });
+    }
+  } else {
+    return res.status(404).json({
+      success: false,
+      message: errorGenerator(102, "user"),
+    });
+  }
+};
+
 module.exports = {
   createUser,
   updateUserCredentials,
@@ -391,4 +469,5 @@ module.exports = {
   getAllUsers,
   verifyEmail,
   verifyPhone,
+  generatePasswordResetToken,
 };

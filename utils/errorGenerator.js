@@ -28,6 +28,11 @@ const errorMessages = [
   {
     collection: "user",
     code: 102,
+    message: "Invalid Request",
+  },
+  {
+    collection: "user",
+    code: 404,
     message: "User not found",
   },
   {
