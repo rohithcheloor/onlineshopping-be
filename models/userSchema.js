@@ -8,9 +8,13 @@ const userSchema = mongoose.Schema(
         required: [true, "Username is required"],
       },
       password: { type: String, required: [true, "Password is required"] },
-      privilege: {
+      passwordReset: {
+        token: { type: String },
+        expiry: { type: String },
+      },
+      role: {
         type: String,
-        required: [true, "User Privilege is required"],
+        required: [true, "User Role is required"],
       },
       tokens: { type: Array },
     },

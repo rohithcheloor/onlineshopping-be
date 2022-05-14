@@ -47,6 +47,11 @@ const loginUser = async (req, res) => {
                 ip: req.socket.remoteAddress,
               });
               userData.authInfo.tokens = refreshedTokens;
+              if (userData.authInfo.passwordReset) {
+                //Removing password reset token on successful authentication
+                userData.authInfo.passwordReset.expiry = "";
+                userData.authInfo.passwordReset.token = "";
+              }
               await userData.save().then((updateRes, err) => {
                 if (updateRes)
                   res.status(200).json({

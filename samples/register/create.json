@@ -2,7 +2,7 @@
     "authInfo": {
       "username": "rohith",
       "password": "rohith",
-      "privilege":"user"
+      "role":"user"
     },
     "userInfo": {
       "firstname": "Rohith Cheloor",

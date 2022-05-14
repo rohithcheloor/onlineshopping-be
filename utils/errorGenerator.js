@@ -28,6 +28,11 @@ const errorMessages = [
   {
     collection: "user",
     code: 102,
+    message: "Invalid Request",
+  },
+  {
+    collection: "user",
+    code: 404,
     message: "User not found",
   },
   {
@@ -36,12 +41,48 @@ const errorMessages = [
     message: "User account updation failed",
   },
   {
+    collection: "product",
+    code: 103,
+    message: "Product creation failed",
+  },
+  {
     collection: "user",
     code: 104,
     message: "Invalid Credentials",
   },
   {
+    collection: "product",
+    code: 105,
+    message: "Product updation failed",
+  },
+  {
     collection: "user",
+    code: 401,
+    message: "Unauthorized Request",
+  },
+  {
+    collection: "product",
+    code: 401,
+    message: "Unauthorized Request",
+  },
+  {
+    collection: "product",
+    code: 404,
+    message: "Product not found",
+  },
+  {
+    collection: "productVariant",
+    code: 400,
+    message: "Invalid Product Variant found",
+  },
+  {
+    collection: "productVariant",
+    code: 404,
+    message: "Product Variant not found",
+  },
+
+  {
+    collection: "productVariant",
     code: 401,
     message: "Unauthorized Request",
   },
