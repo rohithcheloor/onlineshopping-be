@@ -11,6 +11,7 @@ router.delete("/user/delete", userController.deleteUser);
 router.get("/user/all", userController.getAllUsers);
 router.put("/user/verify/email/:token", userController.verifyEmail);
 router.put("/user/verify/phone/:token", userController.verifyPhone);
-router.post("/user/reset", userController.generatePasswordResetToken);
+router.post("/user/forgotpassword", userController.generatePasswordResetToken);
+router.post("/user/reset", userController.resetPassword);
 
 module.exports = router;

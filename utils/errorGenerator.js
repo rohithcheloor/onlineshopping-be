@@ -51,6 +51,16 @@ const errorMessages = [
     message: "Invalid Credentials",
   },
   {
+    collection: "user",
+    code: 105,
+    message: "Token Expired",
+  },
+  {
+    collection: "user",
+    code: 106,
+    message: "Invalid Reset Token",
+  },
+  {
     collection: "product",
     code: 105,
     message: "Product updation failed",
