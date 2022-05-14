@@ -1,1 +1,1 @@
-# onlineshopping-be
+# Sample Onlineshopping Application - Backend
