@@ -385,14 +385,6 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-/*
-{
-  username:"test",
-  email:"test",
-  phone:"test"
-}
-*/
-
 const generatePasswordResetToken = async (req, res) => {
   const reqBody = req.body;
   if (reqBody.username || reqBody.email || reqBody.phone) {
@@ -461,6 +453,82 @@ const generatePasswordResetToken = async (req, res) => {
   }
 };
 
+const resetPassword = async (req, res) => {
+  const reqBody = req.body;
+  if (reqBody.password && reqBody.token) {
+    const userData = await user.findOne({
+      "authInfo.passwordReset.token": reqBody.token,
+    });
+    if (
+      userData &&
+      moment(userData.authInfo.passwordReset.expiry).toISOString() <
+        moment().toISOString()
+    ) {
+      userData.authInfo.passwordReset = undefined;
+      userData.save().then(
+        () => {
+          return res.status(401).json({
+            success: false,
+            message: errorGenerator(105, "user"),
+          });
+        },
+        (err) => {
+          return res.status(500).json({
+            success: false,
+            message: err,
+          });
+        }
+      );
+    } else if (userData) {
+      await encryption.encryptPassword(reqBody.password, (err, hash) => {
+        if (hash) {
+          // if (hash !== userData.authInfo.password) {
+          userData.authInfo.password = hash;
+          userData.authInfo.passwordReset = undefined;
+          userData.save().then(
+            () => {
+              sendMail(
+                {
+                  mailto: userData.userInfo.email,
+                  subject: "Password updated Successfully",
+                  content: constants.passwordUpdateContent(),
+                  successMessage: "Password updated successfully.",
+                },
+                res
+              );
+            },
+            (err) => {
+              return res.status(404).json({
+                success: false,
+                message: "Password updation failed",
+                err: err,
+              });
+            }
+          );
+          // } else {
+          //   return res.status(400).json({
+          //     success: false,
+          //     message: "Password cannot be the same as the existing password",
+          //     err: err,
+          //   });
+          // }
+        } else {
+          return res.status(404).json({
+            success: false,
+            message: "Password updation failed",
+            err: err,
+          });
+        }
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: errorGenerator(106, "user"),
+      });
+    }
+  }
+};
+
 module.exports = {
   createUser,
   updateUserCredentials,
@@ -470,4 +538,5 @@ module.exports = {
   verifyEmail,
   verifyPhone,
   generatePasswordResetToken,
+  resetPassword,
 };
