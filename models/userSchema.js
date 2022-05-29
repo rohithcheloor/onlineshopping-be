@@ -44,7 +44,7 @@ const userSchema = mongoose.Schema(
           },
         },
       ],
-      deliveryAddress: [
+      primaryAddress: [
         {
           building: {
             type: String,

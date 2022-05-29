@@ -5,9 +5,14 @@ const productVariantController = require("../controllers/productVariantControlle
 
 const router = express.Router();
 
-router.get("/product/variant/all", productVariantController.getAllVariants);
 router.post("/product/create", productController.createProduct);
-
+router.get("/product/all", productController.getAllProducts);
+router.get("/product/:id", productController.getProductById);
+router.get("/product/variant/all", productVariantController.getAllVariants);
+router.get(
+  "/product/variant/:id",
+  productVariantController.getProductVariantsByProductId
+);
 router.post(
   "/product/variant/create",
   productVariantController.createProductVariant

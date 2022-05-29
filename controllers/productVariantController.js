@@ -13,6 +13,24 @@ const getAllVariants = async (req, res) => {
   });
 };
 
+const getProductVariantsByProductId = async (req, res) => {
+  const variantList = await productVariant.find({
+    "productVariantDetails.productId": req.params.id,
+  });
+  if (!variantList) {
+    return res.status(404).json({
+      success: false,
+      message: errorGenerator(404, "product"),
+    });
+  } else {
+    return res.status(200).json({
+      success: true,
+      productVariants: variantList,
+      message: "Fetched Product variants successfully",
+    });
+  }
+};
+
 const createProductVariant = async (req, res) => {
   const isAuthorized = await validateToken(req);
   if (isAuthorized) {
@@ -133,4 +151,9 @@ const updateProductVariant = async (req, res) => {
     });
   }
 };
-module.exports = { getAllVariants, createProductVariant, updateProductVariant };
+module.exports = {
+  getAllVariants,
+  createProductVariant,
+  updateProductVariant,
+  getProductVariantsByProductId,
+};

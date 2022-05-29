@@ -33,4 +33,37 @@ const createProduct = async (req, res) => {
     });
   }
 };
-module.exports = { createProduct };
+
+const getAllProducts = async (req, res) => {
+  const productList = await product.find({});
+  if (!productList) {
+    return res.status(404).json({
+      success: false,
+      message: errorGenerator(404, "product"),
+    });
+  } else {
+    return res.status(200).json({
+      success: true,
+      data: productList,
+      message: "Fetched all Products",
+    });
+  }
+};
+
+const getProductById = async (req, res) => {
+  const productList = await product.findById(req.params.id);
+  if (!productList) {
+    return res.status(404).json({
+      success: false,
+      message: errorGenerator(404, "product"),
+    });
+  } else {
+    return res.status(200).json({
+      success: true,
+      productData: productList,
+      message: "Fetched Product Details",
+    });
+  }
+};
+
+module.exports = { createProduct, getAllProducts, getProductById };
