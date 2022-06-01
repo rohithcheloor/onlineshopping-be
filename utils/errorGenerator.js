@@ -66,12 +66,7 @@ const errorMessages = [
     message: "Product updation failed",
   },
   {
-    collection: "user",
-    code: 401,
-    message: "Unauthorized Request",
-  },
-  {
-    collection: "product",
+    collection: "auth",
     code: 401,
     message: "Unauthorized Request",
   },
@@ -87,14 +82,18 @@ const errorMessages = [
   },
   {
     collection: "productVariant",
+    code: 100,
+    message: "Invalid Item found in Product Variant Specifications",
+  },
+  {
+    collection: "productVariant",
     code: 404,
     message: "Product Variant not found",
   },
-
   {
-    collection: "productVariant",
-    code: 401,
-    message: "Unauthorized Request",
+    collection: "cart",
+    code: 404,
+    message: "Cart Updation failed",
   },
 ];
 const errorGenerator = (errorCode, collection) => {

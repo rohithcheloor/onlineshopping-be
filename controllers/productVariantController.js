@@ -54,17 +54,19 @@ const createProductVariant = async (req, res) => {
         productDetails.variantCategories &&
         Object.keys(productDetails.variantCategories).length > 0
       ) {
-        Object.keys(reqData.productVariantDetails.variantSpecification).forEach(
-          (item) => {
-            if (!Object.keys(productDetails.variantCategories).includes(item)) {
-              return res.status(404).json({
-                success: false,
-                err: item,
-                message: errorGenerator(400, "productVariant"),
-              });
-            }
-          }
+        const specValidation = Object.keys(
+          reqData.productVariantDetails.variantSpecification
+        ).filter(
+          (item) =>
+            !Object.keys(productDetails.variantCategories).includes(item)
         );
+        if (specValidation && specValidation.length > 0) {
+          return res.status(404).json({
+            success: false,
+            err: specValidation,
+            message: errorGenerator(100, "productVariant"),
+          });
+        }
       } else {
         return res.status(404).json({
           success: false,
@@ -95,7 +97,7 @@ const createProductVariant = async (req, res) => {
   } else {
     return res.status(401).json({
       success: false,
-      message: errorGenerator(401, "product"),
+      message: errorGenerator(401, "auth"),
     });
   }
 };
@@ -147,7 +149,7 @@ const updateProductVariant = async (req, res) => {
   } else {
     return res.status(401).json({
       success: false,
-      message: errorGenerator(401, "product"),
+      message: errorGenerator(401, "auth"),
     });
   }
 };

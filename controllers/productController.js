@@ -29,7 +29,7 @@ const createProduct = async (req, res) => {
   } else {
     return res.status(401).json({
       success: false,
-      message: errorGenerator(401, "product"),
+      message: errorGenerator(401, "auth"),
     });
   }
 };

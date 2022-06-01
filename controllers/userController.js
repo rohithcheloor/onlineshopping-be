@@ -90,7 +90,7 @@ const createUser = async (req, res) => {
         else
           return res.status(404).json({
             success: false,
-            message: errorGenerator(err.code, "user"),
+            message: errorGenerator(102, "user"),
             error: err,
           });
       });
@@ -229,7 +229,7 @@ const updateUserDetails = async (req, res) => {
   } else {
     return res.status(401).json({
       success: false,
-      message: errorGenerator(401, "user"),
+      message: errorGenerator(401, "auth"),
     });
   }
 };
@@ -331,7 +331,7 @@ const updateUserCredentials = async (req, res) => {
           } else {
             return res.status(401).json({
               success: false,
-              message: errorGenerator(401, "user"),
+              message: errorGenerator(401, "auth"),
             });
           }
         }
@@ -339,13 +339,13 @@ const updateUserCredentials = async (req, res) => {
     } else {
       return res.status(401).json({
         success: false,
-        message: errorGenerator(401, "user"),
+        message: errorGenerator(401, "auth"),
       });
     }
   } else {
     return res.status(401).json({
       success: false,
-      message: errorGenerator(401, "user"),
+      message: errorGenerator(401, "auth"),
     });
   }
 };
